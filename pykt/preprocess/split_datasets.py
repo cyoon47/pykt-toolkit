@@ -19,6 +19,7 @@ def read_data(fname, min_seq_len=3, response_set=[0, 1]):
         i = 0
         lines = fin.readlines()
         dcur = dict()
+        print(len(lines))
         while i < len(lines):
             line = lines[i].strip()
             if i % 6 == 0:  # stuid

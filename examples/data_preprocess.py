@@ -1,5 +1,12 @@
 import os, sys
 import argparse
+from pathlib import Path
+
+path_root = Path(__file__).parents[1]
+sys.path.append(str(path_root))
+
+print("importing things...")
+
 from pykt.preprocess.split_datasets import main as split_concept
 from pykt.preprocess.split_datasets_que import main as split_question
 from pykt.preprocess import data_proprocess, process_raw_data
@@ -30,19 +37,23 @@ if __name__ == "__main__":
     parser.add_argument("-l","--maxlen", type=int, default=200)
     parser.add_argument("-k","--kfold", type=int, default=5)
     # parser.add_argument("--mode", type=str, default="concept",help="question or concept")
+    parser.add_argument("--dname", type=str)
+    parser.add_argument("--writef", type=str)
     args = parser.parse_args()
 
     print(args)
 
     # process raw data
-    if args.dataset_name=="peiyou":
-        dname2paths["peiyou"] = args.file_path
-        print(f"fpath: {args.file_path}")
-    dname, writef = process_raw_data(args.dataset_name, dname2paths)
+    # if args.dataset_name=="peiyou":
+    #     dname2paths["peiyou"] = args.file_path
+    #     print(f"fpath: {args.file_path}")
+    # dname, writef = process_raw_data(args.dataset_name, dname2paths)
+
+    dname, writef = args.dname, args.writef
     print("-"*50)
     print(f"dname: {dname}, writef: {writef}")
     # split
-    os.system("rm " + dname + "/*.pkl")
+    # os.system("rm " + dname + "/*.pkl")
 
     #for concept level model
     split_concept(dname, writef, args.dataset_name, configf, args.min_seq_len,args.maxlen, args.kfold)
