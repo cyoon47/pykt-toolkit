@@ -2,6 +2,7 @@ import os, sys
 import pandas as pd
 import numpy as np
 import json, copy
+from tqdm import tqdm
 from .split_datasets import read_data,ALL_KEYS,ONE_KEYS,extend_multi_concepts,save_dcur
 from .split_datasets import train_test_split,KFold_split,calStatistics,get_max_concepts,id_mapping,write_config
 
@@ -10,7 +11,7 @@ def generate_sequences(df, effective_keys, min_seq_len=3, maxlen = 200, pad_val 
     save_keys = list(effective_keys) + ["selectmasks"]
     dres = {"selectmasks": []}
     dropnum = 0
-    for i, row in df.iterrows():
+    for i, row in tqdm(df.iterrows(), desc='generate_sequences', total=df.shape[0]):
         dcur = save_dcur(row, effective_keys)
 
         rest, lenrs = len(dcur["responses"]), len(dcur["responses"])
@@ -52,7 +53,7 @@ def generate_sequences(df, effective_keys, min_seq_len=3, maxlen = 200, pad_val 
 def generate_window_sequences(df, effective_keys, maxlen=200, pad_val=-1):
     save_keys = list(effective_keys) + ["selectmasks"]
     dres = {"selectmasks": []}
-    for i, row in df.iterrows():
+    for i, row in tqdm(df.iterrows(), desc='generate_window_sequences', total=df.shape[0]):
         dcur = save_dcur(row, effective_keys)
         lenrs = len(dcur["responses"])
         if lenrs > maxlen:
@@ -102,7 +103,7 @@ def id_mapping_que(df):
     for key in df.columns:
         if key not in id_keys:
             dres[key] = df[key]
-    for i, row in df.iterrows():
+    for i, row in tqdm(df.iterrows(), desc="id_mapping_que", total=df.shape[0]):
         for key in id_keys:
             if key not in df.columns:
                 continue

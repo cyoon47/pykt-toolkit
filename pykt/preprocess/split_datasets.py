@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import json
 import copy
+from tqdm import tqdm
 
 ALL_KEYS = ["fold", "uid", "questions", "concepts", "responses", "timestamps",
             "usetimes", "selectmasks", "is_repeat", "qidxs", "rest", "orirow", "cidxs"]
@@ -106,7 +107,7 @@ def extend_multi_concepts(df, effective_keys):
     extend_keys = set(df.columns) - {"uid"}
 
     dres = {"uid": df["uid"]}
-    for _, row in df.iterrows():
+    for _, row in tqdm(df.iterrows(), desc="extend_multi_concepts", total=df.shape[0]):
         dextend_infos = dict()
         for key in extend_keys:
             dextend_infos[key] = row[key].split(",")
@@ -146,7 +147,7 @@ def id_mapping(df):
     for key in df.columns:
         if key not in id_keys:
             dres[key] = df[key]
-    for i, row in df.iterrows():
+    for i, row in tqdm(df.iterrows(), desc="id_mapping", total=df.shape[0]):
         for key in id_keys:
             if key not in df.columns:
                 continue
@@ -214,7 +215,7 @@ def generate_sequences(df, effective_keys, min_seq_len=3, maxlen=200, pad_val=-1
     save_keys = list(effective_keys) + ["selectmasks"]
     dres = {"selectmasks": []}
     dropnum = 0
-    for i, row in df.iterrows():
+    for i, row in tqdm(df.iterrows(), desc="generate_sequences", total=df.shape[0]):
         dcur = save_dcur(row, effective_keys)
 
         rest, lenrs = len(dcur["responses"]), len(dcur["responses"])
@@ -260,7 +261,7 @@ def generate_sequences(df, effective_keys, min_seq_len=3, maxlen=200, pad_val=-1
 def generate_window_sequences(df, effective_keys, maxlen=200, pad_val=-1):
     save_keys = list(effective_keys) + ["selectmasks"]
     dres = {"selectmasks": []}
-    for i, row in df.iterrows():
+    for i, row in tqdm(df.iterrows(), desc="generate_window_sequences", total=df.shape[0]):
         dcur = save_dcur(row, effective_keys)
         lenrs = len(dcur["responses"])
         if lenrs > maxlen:
@@ -388,7 +389,7 @@ def generate_question_sequences(df, effective_keys, window=True, min_seq_len=3, 
     dres = {}  # "selectmasks": []}
     global_qidx = -1
     df["index"] = list(range(0, df.shape[0]))
-    for i, row in df.iterrows():
+    for i, row in tqdm(df.iterrows(), desc="generate_question_sequences", total=df.shape[0]):
         dcur = save_dcur(row, effective_keys)
         dcur["orirow"] = [row["index"]] * len(dcur["responses"])
 
@@ -527,7 +528,7 @@ def write_config(dataset_name, dkeyid2idx, effective_keys, configf, dpath, k=5, 
 def calStatistics(df, stares, key):
     allin, allselect = 0, 0
     allqs, allcs = set(), set()
-    for i, row in df.iterrows():
+    for i, row in tqdm(df.iterrows(), desc="calStatistics", total=df.shape[0]):
         rs = row["responses"].split(",")
         curlen = len(rs) - rs.count("-1")
         allin += curlen
@@ -646,10 +647,7 @@ def main(dname, fname, dataset_name, configf, min_seq_len=3, maxlen=200, kfold=5
 
     test_window_seqs = generate_window_sequences(
         test_df, list(effective_keys) + ['cidxs'], maxlen)
-    flag, test_question_seqs = generate_question_sequences(
-        test_df, effective_keys, False, min_seq_len, maxlen)
-    flag, test_question_window_seqs = generate_question_sequences(
-        test_df, effective_keys, True, min_seq_len, maxlen)
+    
 
     test_df = test_df[config+['cidxs']]
 
@@ -658,14 +656,25 @@ def main(dname, fname, dataset_name, configf, min_seq_len=3, maxlen=200, kfold=5
     test_window_seqs.to_csv(os.path.join(
         dname, "test_window_sequences.csv"), index=None)
 
+    
+    flag, test_question_window_seqs = generate_question_sequences(
+        test_df, effective_keys, True, min_seq_len, maxlen)
+
     ins, ss, qs, cs, seqnum = calStatistics(
         test_window_seqs, stares, "test window")
     print(
         f"test window interactions num: {ins}, select num: {ss}, qs: {qs}, cs: {cs}, seqnum: {seqnum}")
 
-    if flag:
+    if True:
+        flag, test_question_seqs = generate_question_sequences(
+            test_df, effective_keys, False, min_seq_len, maxlen)
+
         test_question_seqs.to_csv(os.path.join(
             dname, "test_question_sequences.csv"), index=None)
+
+        flag, test_question_window_seqs = generate_question_sequences(
+            test_df, effective_keys, True, min_seq_len, maxlen)
+            
         test_question_window_seqs.to_csv(os.path.join(
             dname, "test_question_window_sequences.csv"), index=None)
 
