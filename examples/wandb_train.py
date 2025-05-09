@@ -1,11 +1,15 @@
 import os
 import argparse
 import json
+from pathlib import Path
 
 import torch
 torch.set_num_threads(4) 
 from torch.optim import SGD, Adam
 import copy
+
+path_root = Path(__file__).parents[1]
+sys.path.append(str(path_root))
 
 from pykt.models import train_model,evaluate,init_model
 from pykt.utils import debug_print,set_seed

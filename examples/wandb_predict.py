@@ -4,6 +4,10 @@ import json
 import copy
 import torch
 import pandas as pd
+from pathlib import Path
+
+path_root = Path(__file__).parents[1]
+sys.path.append(str(path_root))
 
 from pykt.models import evaluate,evaluate_question,load_model
 from pykt.datasets import init_test_datasets
