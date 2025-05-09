@@ -27,7 +27,7 @@ dname2paths = {
     "ednet5w": "../data/ednet/",
     "peiyou": "../data/peiyou/grade3_students_b_200.csv"
 }
-configf = "../configs/data_config.json"
+configf = "./configs/data_config.json"
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

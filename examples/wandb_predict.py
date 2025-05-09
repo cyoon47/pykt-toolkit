@@ -80,19 +80,22 @@ def main(params):
         testauc, testacc = evaluate(model, test_loader, model_name, save_test_path)
     print(f"testauc: {testauc}, testacc: {testacc}")
 
-    window_testauc, window_testacc = -1, -1
-    save_test_window_path = os.path.join(save_dir, model.emb_type+"_test_window_predictions.txt")
-    if model.model_name == "rkt":
-        window_testauc, window_testacc = evaluate(model, test_window_loader, model_name, rel, save_test_window_path)
-    else:
-        window_testauc, window_testacc = evaluate(model, test_window_loader, model_name, save_test_window_path)
-    print(f"testauc: {testauc}, testacc: {testacc}, window_testauc: {window_testauc}, window_testacc: {window_testacc}")
+    # window_testauc, window_testacc = -1, -1
+    # save_test_window_path = os.path.join(save_dir, model.emb_type+"_test_window_predictions.txt")
+    # if model.model_name == "rkt":
+    #     window_testauc, window_testacc = evaluate(model, test_window_loader, model_name, rel, save_test_window_path)
+    # else:
+    #     window_testauc, window_testacc = evaluate(model, test_window_loader, model_name, save_test_window_path)
+    # print(f"testauc: {testauc}, testacc: {testacc}, window_testauc: {window_testauc}, window_testacc: {window_testacc}")
 
     # question_testauc, question_testacc = -1, -1
     # question_window_testauc, question_window_testacc = -1, -1
   
+    # dres = {
+    #     "testauc": testauc, "testacc": testacc, "window_testauc": window_testauc, "window_testacc": window_testacc,
+    # }  
     dres = {
-        "testauc": testauc, "testacc": testacc, "window_testauc": window_testauc, "window_testacc": window_testacc,
+        "testauc": testauc, "testacc": testacc, "window_testauc": None, "window_testacc": None,
     }  
 
     q_testaucs, q_testaccs = -1,-1
