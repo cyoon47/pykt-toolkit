@@ -470,5 +470,145 @@
         "train_valid_file_quelevel": "train_valid_sequences_quelevel.csv",
         "test_file_quelevel": "test_sequences_quelevel.csv",
         "test_original_file_quelevel": "test_quelevel.csv"
+    },
+    "merge_kcs_75_16": {
+        "dpath": "/root/nas/merged_kcs_75_16/",
+        "num_q": 7651,
+        "num_c": 1693,
+        "input_type": [
+            "questions",
+            "concepts"
+        ],
+        "max_concepts": 61,
+        "min_seq_len": 3,
+        "maxlen": 200,
+        "emb_path": "",
+        "train_valid_original_file": "train_valid.csv",
+        "train_valid_file": "train_valid_sequences.csv",
+        "folds": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ],
+        "test_original_file": "test.csv",
+        "test_file": "test_sequences.csv",
+        "train_valid_original_file_quelevel": "train_valid_quelevel.csv",
+        "train_valid_file_quelevel": "train_valid_sequences_quelevel.csv",
+        "test_file_quelevel": "test_sequences_quelevel.csv",
+        "test_original_file_quelevel": "test_quelevel.csv"
+    },
+    "merge_kcs_75_8": {
+        "dpath": "/root/nas/merged_kcs_75_8/",
+        "num_q": 7651,
+        "num_c": 3385,
+        "input_type": [
+            "questions",
+            "concepts"
+        ],
+        "max_concepts": 74,
+        "min_seq_len": 3,
+        "maxlen": 200,
+        "emb_path": "",
+        "train_valid_original_file": "train_valid.csv",
+        "train_valid_file": "train_valid_sequences.csv",
+        "folds": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ],
+        "test_original_file": "test.csv",
+        "test_file": "test_sequences.csv",
+        "train_valid_original_file_quelevel": "train_valid_quelevel.csv",
+        "train_valid_file_quelevel": "train_valid_sequences_quelevel.csv",
+        "test_file_quelevel": "test_sequences_quelevel.csv",
+        "test_original_file_quelevel": "test_quelevel.csv"
+    },
+    "merge_kcs_75_4": {
+        "dpath": "/root/nas/merged_kcs_75_4/",
+        "num_q": 7651,
+        "num_c": 6770,
+        "input_type": [
+            "questions",
+            "concepts"
+        ],
+        "max_concepts": 86,
+        "min_seq_len": 3,
+        "maxlen": 200,
+        "emb_path": "",
+        "train_valid_original_file": "train_valid.csv",
+        "train_valid_file": "train_valid_sequences.csv",
+        "folds": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ],
+        "test_original_file": "test.csv",
+        "test_file": "test_sequences.csv",
+        "train_valid_original_file_quelevel": "train_valid_quelevel.csv",
+        "train_valid_file_quelevel": "train_valid_sequences_quelevel.csv",
+        "test_file_quelevel": "test_sequences_quelevel.csv",
+        "test_original_file_quelevel": "test_quelevel.csv"
+    },
+    "merge_kcs_75_2": {
+        "dpath": "/root/nas/merged_kcs_75_2/",
+        "num_q": 7651,
+        "num_c": 13540,
+        "input_type": [
+            "questions",
+            "concepts"
+        ],
+        "max_concepts": 94,
+        "min_seq_len": 3,
+        "maxlen": 200,
+        "emb_path": "",
+        "train_valid_original_file": "train_valid.csv",
+        "train_valid_file": "train_valid_sequences.csv",
+        "folds": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ],
+        "test_original_file": "test.csv",
+        "test_file": "test_sequences.csv",
+        "train_valid_original_file_quelevel": "train_valid_quelevel.csv",
+        "train_valid_file_quelevel": "train_valid_sequences_quelevel.csv",
+        "test_file_quelevel": "test_sequences_quelevel.csv",
+        "test_original_file_quelevel": "test_quelevel.csv"
+    },
+    "merge_kcs_75": {
+        "dpath": "/root/nas/merged_kcs_75/",
+        "num_q": 7651,
+        "num_c": 27078,
+        "input_type": [
+            "questions",
+            "concepts"
+        ],
+        "max_concepts": 104,
+        "min_seq_len": 3,
+        "maxlen": 200,
+        "emb_path": "",
+        "train_valid_original_file": "train_valid.csv",
+        "train_valid_file": "train_valid_sequences.csv",
+        "folds": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ],
+        "test_original_file": "test.csv",
+        "test_file": "test_sequences.csv",
+        "train_valid_original_file_quelevel": "train_valid_quelevel.csv",
+        "train_valid_file_quelevel": "train_valid_sequences_quelevel.csv",
+        "test_file_quelevel": "test_sequences_quelevel.csv",
+        "test_original_file_quelevel": "test_quelevel.csv"
     }
 }

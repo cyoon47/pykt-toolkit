@@ -148,9 +148,9 @@ class KTDataset(Dataset):
                 dqtest["orirow"].append([int(_) for _ in row["orirow"].split(",")])
         for key in dori:
             if key not in ["rseqs"]:#in ["smasks", "tseqs"]:
-                dori[key] = LongTensor(dori[key])
+                dori[key] = LongTensor(dori[key]).to('cuda')
             else:
-                dori[key] = FloatTensor(dori[key])
+                dori[key] = FloatTensor(dori[key]).to('cuda')
 
         mask_seqs = (dori["cseqs"][:,:-1] != pad_val) * (dori["cseqs"][:,1:] != pad_val)
         dori["masks"] = mask_seqs

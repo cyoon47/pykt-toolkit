@@ -51,8 +51,8 @@ class KQN(nn.Module):
         self.drop_layer = nn.Dropout(dropout)
         self.sigmoid = nn.Sigmoid()
         # self.loss_fn = nn.BCEWithLogitsLoss(reduction='mean')
-        self.two_eye = torch.eye(2*n_skills)
-        self.eye = torch.eye(n_skills)
+        self.two_eye = torch.eye(2*n_skills, device=device)
+        self.eye = torch.eye(n_skills, device=device)
 
     
     def init_hidden(self, batch_size: int):

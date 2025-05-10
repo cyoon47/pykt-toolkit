@@ -20,7 +20,7 @@ emb_type_map = {"akt-iekt":"qc_merge",
   
 
 class QueEmb(nn.Module):
-    def __init__(self,num_q,num_c,emb_size,model_name,device='cpu',emb_type='qid',emb_path="", pretrain_dim=768):
+    def __init__(self,num_q,num_c,emb_size,model_name,device='cuda',emb_type='qid',emb_path="", pretrain_dim=768):
         """_summary_
 
         Args:
@@ -96,7 +96,7 @@ class QueEmb(nn.Module):
         #[batch_size, seq_len,1]
         concept_num = torch.where(related_concepts != 0, 1, 0).sum(
             axis=-1).unsqueeze(-1)
-        concept_num = torch.where(concept_num == 0, 1, concept_num)
+        concept_num = torch.where(concept_num == 0, 1, concept_num).to(self.device)
         concept_avg = (concept_emb_sum / concept_num)
         return concept_avg
 
@@ -239,20 +239,20 @@ class QueBaseModel(nn.Module):
         # qshft, cshft, rshft, tshft = dcur["shft_qseqs"], dcur["shft_cseqs"], dcur["shft_rseqs"], dcur["shft_tseqs"]
         # m, sm = dcur["masks"], dcur["smasks"]
         data_new = {}
-        data_new['cq'] = torch.cat((dcur["qseqs"][:,0:1], dcur["shft_qseqs"]), dim=1)
-        data_new['cc'] = torch.cat((dcur["cseqs"][:,0:1],  dcur["shft_cseqs"]), dim=1)
-        data_new['cr'] = torch.cat((dcur["rseqs"][:,0:1], dcur["shft_rseqs"]), dim=1)
-        data_new['ct'] = torch.cat((dcur["tseqs"][:,0:1], dcur["shft_tseqs"]), dim=1)
-        data_new['q'] = dcur["qseqs"]
-        data_new['c'] = dcur["cseqs"]
-        data_new['r'] = dcur["rseqs"]
-        data_new['t'] = dcur["tseqs"]
-        data_new['qshft'] = dcur["shft_qseqs"]
-        data_new['cshft'] = dcur["shft_cseqs"]
-        data_new['rshft'] = dcur["shft_rseqs"]
-        data_new['tshft'] = dcur["shft_tseqs"]
-        data_new['m'] = dcur["masks"]
-        data_new['sm'] = dcur["smasks"]
+        data_new['cq'] = torch.cat((dcur["qseqs"][:,0:1], dcur["shft_qseqs"]), dim=1).to(self.device)
+        data_new['cc'] = torch.cat((dcur["cseqs"][:,0:1],  dcur["shft_cseqs"]), dim=1).to(self.device)
+        data_new['cr'] = torch.cat((dcur["rseqs"][:,0:1], dcur["shft_rseqs"]), dim=1).to(self.device)
+        data_new['ct'] = torch.cat((dcur["tseqs"][:,0:1], dcur["shft_tseqs"]), dim=1).to(self.device)
+        data_new['q'] = dcur["qseqs"].to(self.device)
+        data_new['c'] = dcur["cseqs"].to(self.device)
+        data_new['r'] = dcur["rseqs"].to(self.device)
+        data_new['t'] = dcur["tseqs"].to(self.device)
+        data_new['qshft'] = dcur["shft_qseqs"].to(self.device)
+        data_new['cshft'] = dcur["shft_cseqs"].to(self.device)
+        data_new['rshft'] = dcur["shft_rseqs"].to(self.device)
+        data_new['tshft'] = dcur["shft_tseqs"].to(self.device)
+        data_new['m'] = dcur["masks"].to(self.device)
+        data_new['sm'] = dcur["smasks"].to(self.device)
         return data_new
 
     def train(self,train_dataset, valid_dataset,batch_size=16,valid_batch_size=None,num_epochs=32, test_loader=None, test_window_loader=None,save_dir="tmp",save_model=False,patient=10,shuffle=True,process=True):

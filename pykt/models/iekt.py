@@ -9,7 +9,7 @@ from .iekt_utils import mygru,funcs
 from pykt.utils import debug_print
 
 class IEKTNet(nn.Module): 
-    def __init__(self, num_q,num_c,emb_size,max_concepts,lamb=40,n_layer=1,cog_levels=10,acq_levels=10,dropout=0,gamma=0.93, emb_type='qc_merge', emb_path="", pretrain_dim=768,device='cpu'):
+    def __init__(self, num_q,num_c,emb_size,max_concepts,lamb=40,n_layer=1,cog_levels=10,acq_levels=10,dropout=0,gamma=0.93, emb_type='qc_merge', emb_path="", pretrain_dim=768,device='cuda'):
         super().__init__()
         self.model_name = "iekt"
         self.emb_size = emb_size
@@ -104,7 +104,7 @@ class IEKTNet(nn.Module):
 
 
 class IEKT(QueBaseModel):
-    def __init__(self, num_q,num_c,emb_size,max_concepts,lamb=40,n_layer=1,cog_levels=10,acq_levels=10,dropout=0,gamma=0.93, emb_type='qid', emb_path="", pretrain_dim=768,device='cpu',seed=0):
+    def __init__(self, num_q,num_c,emb_size,max_concepts,lamb=40,n_layer=1,cog_levels=10,acq_levels=10,dropout=0,gamma=0.93, emb_type='qid', emb_path="", pretrain_dim=768,device='cuda',seed=0):
         model_name = "iekt"
         super().__init__(model_name=model_name,emb_type=emb_type,emb_path=emb_path,pretrain_dim=pretrain_dim,device=device,seed=seed)
 
@@ -124,7 +124,7 @@ class IEKT(QueBaseModel):
         seq_len = data_new['cc'].shape[1]
 
         #以下是强化学习部分内容
-        seq_num = torch.where(data['qseqs']!=0,1,0).sum(axis=-1)+1
+        seq_num = torch.where(data['qseqs']!=0,1,0).sum(axis=-1).to(self.device)+1
         emb_action_tensor = torch.stack(emb_action_list, dim = 1)
         p_action_tensor = torch.stack(p_action_list, dim = 1)
         state_tensor = torch.stack(states_list, dim = 1)
