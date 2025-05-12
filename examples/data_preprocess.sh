@@ -1,0 +1,1 @@
+python /root/pykt-toolkit/examples/data_preprocess.py --dname="/root/nas/XES3G5M/" --writef="/root/nas/XES3G5M/data.txt" --dataset_name="XES3G5M"
