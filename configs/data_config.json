@@ -443,7 +443,7 @@
         "test_window_file_quelevel": "test_window_sequences_quelevel.csv",
         "test_original_file_quelevel": "test_quelevel.csv"
     },
-    "merge_75_32": {
+    "merge_kcs_75_32": {
         "dpath": "/root/nas/merged_kcs_75_32/",
         "num_q": 7651,
         "num_c": 847,

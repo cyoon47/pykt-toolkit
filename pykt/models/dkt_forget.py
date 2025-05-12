@@ -43,9 +43,9 @@ class DKTForget(Module):
 class CIntegration(Module):
     def __init__(self, num_rgap, num_sgap, num_pcount, emb_dim) -> None:
         super().__init__()
-        self.rgap_eye = torch.eye(num_rgap)
-        self.sgap_eye = torch.eye(num_sgap)
-        self.pcount_eye = torch.eye(num_pcount)
+        self.rgap_eye = torch.eye(num_rgap, device=device)
+        self.sgap_eye = torch.eye(num_sgap, device=device)
+        self.pcount_eye = torch.eye(num_pcount, device=device)
 
         ntotal = num_rgap + num_sgap + num_pcount
         self.cemb = Linear(ntotal, emb_dim, bias=False)

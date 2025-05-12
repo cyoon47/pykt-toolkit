@@ -19,7 +19,7 @@ class ATDKT(Module):
         self.hidden_size = emb_size
         self.emb_type = emb_type
 
-        self.interaction_emb = Embedding(self.num_c * 2, self.emb_size)
+        self.interaction_emb = Embedding(self.num_c * 2, self.emb_size).to(device)
 
         self.lstm_layer = LSTM(self.emb_size, self.hidden_size, batch_first=True)
         self.dropout_layer = Dropout(dropout)
@@ -132,7 +132,7 @@ class ATDKT(Module):
         emb_type = self.emb_type
         if emb_type.startswith("qid"):
             x = c + self.num_c * r
-            xemb = self.interaction_emb(x)
+            xemb = self.interaction_emb(x.to(device))
         rpreds, qh = None, None
         if emb_type == "qid":
             h, _ = self.lstm_layer(xemb)
