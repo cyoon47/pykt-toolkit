@@ -19,7 +19,7 @@ class ATDKT(Module):
         self.hidden_size = emb_size
         self.emb_type = emb_type
 
-        self.interaction_emb = Embedding(self.num_c * 2, self.emb_size)
+        self.interaction_emb = Embedding(self.num_c * 2, self.emb_size).to(device)
 
         self.lstm_layer = LSTM(self.emb_size, self.hidden_size, batch_first=True)
         self.dropout_layer = Dropout(dropout)

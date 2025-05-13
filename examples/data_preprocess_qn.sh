@@ -1,0 +1,1 @@
+python /root/pykt-toolkit/examples/data_preprocess_qn.py --dname="/root/nas/merged_kcs_75_32/" --writef="/root/nas/merged_kcs_75_32/data.txt" --dataset_name="merged_kcs_75_32_qn"

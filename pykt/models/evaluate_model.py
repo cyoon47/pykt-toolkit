@@ -50,6 +50,7 @@ def evaluate(model, test_loader, model_name, rel=None, save_path=""):
     with torch.no_grad():
         y_trues = []
         y_scores = []
+        qids = []
         dres = dict()
         test_mini_index = 0
         for data in test_loader:
@@ -160,17 +161,63 @@ def evaluate(model, test_loader, model_name, rel=None, save_path=""):
 
             y_trues.append(t.numpy())
             y_scores.append(y.numpy())
+            qids.append(np.array(qshft))
             test_mini_index+=1
         ts = np.concatenate(y_trues, axis=0)
         ps = np.concatenate(y_scores, axis=0)
+        qs = np.concatenate(qids, axis=0)
+
+        aucs, accs = dict(), dict()
+
         print(f"ts.shape: {ts.shape}, ps.shape: {ps.shape}")
         auc = metrics.roc_auc_score(y_true=ts, y_score=ps)
 
         prelabels = [1 if p >= 0.5 else 0 for p in ps]
         acc = metrics.accuracy_score(ts, prelabels)
+
+        aucs['kc'], accs['kc'] = auc, acc
+        dfs = dict()
+
+        dfs['true'] = ts
+        dfs['pred'] = ps
+        dfs['qids'] = qs
+
+        df = pd.DataFrame(dfs)
+
+        df = df.groupby("qids", as_index=True, sort=True)
+
+        grouped_result = dict() #contains trues, late_vote, late_mean, late_strict
+        grouped_result['trues'] = []
+        grouped_result['late_vote'] = []
+        grouped_result['late_mean'] = []
+        grouped_result['late_strict'] = []
+
+        for ui in df:
+            qid = ui[0]
+            dcur = ui[1]
+
+            preds = dcur['pred'] #np array
+            trues = dcur['true'] #np array
+            assert np.all(trues == trues[0]), "All true values are not equal"
+
+            late_vote = 1 if sum([1 if p >= 0.5 else 0 for p in preds]) > len(preds) / 2 else 0
+            late_mean = np.mean(preds)
+            late_strict = 1 if all([p >= 0.5 for p in preds]) else 0
+            grouped_result['late_vote'].append(late_vote)
+            grouped_result['late_mean'].append(late_mean)
+            grouped_result['late_strict'].append(late_strict)
+            grouped_result['trues'].append(trues[0])
+
+        keys = ['late_vote', 'late_mean', 'late_strict']
+        for key in keys:
+            auc = metrics.roc_auc_score(y_true=grouped_result['trues'], y_score=grouped_result[key])
+            prelabels = [1 if p >= 0.5 else 0 for p in grouped_result[key]]
+            acc = metrics.accuracy_score(grouped_result['trues'], prelabels)
+
+            aucs[key], accs[key] = auc, acc
     # if save_path != "":
     #     pd.to_pickle(dres, save_path+".pkl")
-    return auc, acc
+    return aucs, accs
 
 def early_fusion(curhs, model, model_name):
     if model_name in ["dkvmn","skvmn"]:
