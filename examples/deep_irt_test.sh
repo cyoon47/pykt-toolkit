@@ -1,0 +1,5 @@
+CUDA_VISIBLE_DEVICES=1 python wandb_predict.py --save_dir=/root/nas/merged_kcs_75_32/saved_model/merge_kcs_75_32_deep_irt_qid_/root/nas/merged_kcs_75_32/saved_model/_42_0_0.2_200_0.001_50_0_0 >> ~/nas/KT/deep_irt_results.txt
+CUDA_VISIBLE_DEVICES=1 python wandb_predict.py --save_dir=/root/nas/merged_kcs_75_16/saved_model/merge_kcs_75_16_deep_irt_qid_/root/nas/merged_kcs_75_16/saved_model/_42_0_0.2_200_0.001_50_0_0 >> ~/nas/KT/deep_irt_results.txt
+CUDA_VISIBLE_DEVICES=1 python wandb_predict.py --save_dir=/root/nas/merged_kcs_75_8/saved_model/merge_kcs_75_8_deep_irt_qid_/root/nas/merged_kcs_75_8/saved_model/_42_0_0.2_200_0.001_50_0_0 >> ~/nas/KT/deep_irt_results.txt
+CUDA_VISIBLE_DEVICES=1 python wandb_predict.py --save_dir=/root/nas/merged_kcs_75_2/saved_model/merge_kcs_75_2_deep_irt_qid_/root/nas/merged_kcs_75_2/saved_model/_42_0_0.2_200_0.001_50_0_0 >> ~/nas/KT/deep_irt_results.txt
+CUDA_VISIBLE_DEVICES=1 python wandb_predict.py --save_dir=/root/nas/merged_kcs_75/saved_model/merge_kcs_75_deep_irt_qid_/root/nas/merged_kcs_75/saved_model/_42_0_0.2_200_0.001_50_0_0 >> ~/nas/KT/deep_irt_results.txt
