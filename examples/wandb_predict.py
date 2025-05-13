@@ -87,7 +87,7 @@ def main(params):
     keys = ['kc', 'late_vote', 'late_mean', 'late_strict']
     for key in keys:
         print(key)
-        print(f"testauc: {testauc}, testacc: {testacc}")
+        print(f"testauc: {testaucs[key]}, testacc: {testaccs[key]}")
 
     # window_testauc, window_testacc = -1, -1
     # save_test_window_path = os.path.join(save_dir, model.emb_type+"_test_window_predictions.txt")

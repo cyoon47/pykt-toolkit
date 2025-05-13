@@ -7,7 +7,7 @@ import copy
 from tqdm import tqdm
 
 ALL_KEYS = ["fold", "uid", "questions", "concepts", "responses", "timestamps",
-            "usetimes", "selectmasks", "is_repeat", "qidxs", "rest", "orirow", "cidxs"]
+            "usetimes", "selectmasks", "is_repeat", "qidxs", "rest", "orirow", "cidxs", "interactionid"]
 ONE_KEYS = ["fold", "uid"]
 
 
@@ -21,6 +21,7 @@ def read_data(fname, min_seq_len=3, response_set=[0, 1]):
         lines = fin.readlines()
         dcur = dict()
         print(len(lines))
+        interaction_cnt = 0
         while i < len(lines):
             line = lines[i].strip()
             if i % 6 == 0:  # stuid
@@ -79,6 +80,13 @@ def read_data(fname, min_seq_len=3, response_set=[0, 1]):
                     effective_keys.add("timestamps")
                     ts = line.split(",")
                 dcur["timestamps"] = ts
+
+                num_interactions = len(ts)
+                # print(f"num_interactions: {num_interactions}")
+                dcur["interactionid"] = [i+interaction_cnt for i in range(num_interactions)]
+                # print(f"dcur_int_id: {dcur['interactionid']}")
+                effective_keys.add("interactionid")
+                interaction_cnt += num_interactions
             elif i % 6 == 5:  # usets
                 usets = []
                 if line.find("NA") == -1:
@@ -111,6 +119,7 @@ def extend_multi_concepts(df, effective_keys):
         dextend_infos = dict()
         for key in extend_keys:
             dextend_infos[key] = row[key].split(",")
+        # print(dextend_infos)
         dextend_res = dict()
         for i in range(len(dextend_infos["questions"])):
             dextend_res.setdefault("is_repeat", [])

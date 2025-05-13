@@ -132,7 +132,7 @@ class DktForgetDataset(Dataset):
             - **max_pcount (int)**: max num of the past exercise counts
             - **dqtest (dict)**: not null only self.qtest is True, for question level evaluation
         """
-        dori = {"qseqs": [], "cseqs": [], "rseqs": [], "tseqs": [], "utseqs": [], "smasks": []}
+        dori = {"qseqs": [], "cseqs": [], "rseqs": [], "tseqs": [], "utseqs": [], "smasks": [], "interactionid": []}
         # seq_qids, seq_cids, seq_rights, seq_mask = [], [], [], []
         # repeated_gap, sequence_gap, past_counts = [], [], []
         dgaps = {"rgaps": [], "sgaps": [], "pcounts": []}
@@ -159,6 +159,8 @@ class DktForgetDataset(Dataset):
                 dori["tseqs"].append([int(_) for _ in row["timestamps"].split(",")])
             if "usetimes" in row:
                 dori["utseqs"].append([int(_) for _ in row["usetimes"].split(",")])
+            if "interactionid" in row:
+                dori["interactionid"].append([int(_) for _ in row["interactionid"].split(",")])
 
             dori["rseqs"].append([int(_) for _ in row["responses"].split(",")])
             dori["smasks"].append([int(_) for _ in row["selectmasks"].split(",")])

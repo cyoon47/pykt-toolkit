@@ -156,7 +156,7 @@ class ATDKTDataset(Dataset):
             - **dqtest (dict)**: not null only self.qtest is True, for question level evaluation
         """
         dori = {"qseqs": [], "cseqs": [], "rseqs": [], "tseqs": [], "utseqs": [], 
-                "smasks": [], "is_repeat": [], "historycorrs": []
+                "smasks": [], "is_repeat": [], "historycorrs": [], "interactionid": []
                 }
 
         # seq_qids, seq_cids, seq_rights, seq_mask = [], [], [], []
@@ -180,6 +180,8 @@ class ATDKTDataset(Dataset):
             if "is_repeat" in row:
                 dori["is_repeat"].append([int(_) for _ in row["is_repeat"].split(",")])
                 is_repeat = [int(_) for _ in row["is_repeat"].split(",")]
+            if "interactionid" in row:
+                dori["interactionid"].append([int(_) for _ in row["interactionid"].split(",")])
 
             curocs = [int(_) for _ in row["concepts"].split(",")]
             curors = [int(_) for _ in row["responses"].split(",")]
