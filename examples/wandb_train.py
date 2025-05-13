@@ -54,6 +54,8 @@ def main(params):
             train_config["batch_size"] = 32 
         if model_name in ["dtransformer"]:
             train_config["batch_size"] = 32 ## because of OOM
+        if model_name in ["skvmn"]:
+            train_config["batch_size"] = 2048
         model_config = copy.deepcopy(params)
         for key in ["model_name", "dataset_name", "emb_type", "save_dir", "fold", "seed"]:
             del model_config[key]
