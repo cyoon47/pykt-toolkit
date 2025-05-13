@@ -1,0 +1,6 @@
+# python /root/pykt-toolkit/examples/data_preprocess.py --dname="/root/nas/merged_kcs_75_32_interaction/" --writef="/root/nas/merged_kcs_75_32_interaction/data.txt" --dataset_name="merged_kcs_75_32_interaction"
+python /root/pykt-toolkit/examples/data_preprocess.py --dname="/root/nas/merged_kcs_75_16_interaction/" --writef="/root/nas/merged_kcs_75_16_interaction/data.txt" --dataset_name="merged_kcs_75_16_interaction"
+python /root/pykt-toolkit/examples/data_preprocess.py --dname="/root/nas/merged_kcs_75_8_interaction/" --writef="/root/nas/merged_kcs_75_8_interaction/data.txt" --dataset_name="merged_kcs_75_8_interaction"
+python /root/pykt-toolkit/examples/data_preprocess.py --dname="/root/nas/merged_kcs_75_4_interaction/" --writef="/root/nas/merged_kcs_75_4_interaction/data.txt" --dataset_name="merged_kcs_75_4_interaction"
+python /root/pykt-toolkit/examples/data_preprocess.py --dname="/root/nas/merged_kcs_75_2_interaction/" --writef="/root/nas/merged_kcs_75_2_interaction/data.txt" --dataset_name="merged_kcs_75_2_interaction"
+python /root/pykt-toolkit/examples/data_preprocess.py --dname="/root/nas/merged_kcs_75_interaction/" --writef="/root/nas/merged_kcs_75_interaction/data.txt" --dataset_name="merged_kcs_75_interaction"

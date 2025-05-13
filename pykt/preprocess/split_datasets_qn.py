@@ -7,7 +7,7 @@ import copy
 from tqdm import tqdm
 
 ALL_KEYS = ["fold", "uid", "questions", "concepts", "responses", "timestamps",
-            "usetimes", "selectmasks", "is_repeat", "qidxs", "rest", "orirow", "cidxs", "interactionid"]
+            "usetimes", "selectmasks", "is_repeat", "qidxs", "rest", "orirow", "cidxs"]
 ONE_KEYS = ["fold", "uid"]
 
 
@@ -21,7 +21,6 @@ def read_data(fname, min_seq_len=3, response_set=[0, 1]):
         lines = fin.readlines()
         dcur = dict()
         print(len(lines))
-        interaction_cnt = 0
         while i < len(lines):
             line = lines[i].strip()
             if i % 6 == 0:  # stuid
@@ -80,13 +79,6 @@ def read_data(fname, min_seq_len=3, response_set=[0, 1]):
                     effective_keys.add("timestamps")
                     ts = line.split(",")
                 dcur["timestamps"] = ts
-
-                num_interactions = len(ts)
-                # print(f"num_interactions: {num_interactions}")
-                dcur["interactionid"] = [i+interaction_cnt for i in range(num_interactions)]
-                # print(f"dcur_int_id: {dcur['interactionid']}")
-                effective_keys.add("interactionid")
-                interaction_cnt += num_interactions
             elif i % 6 == 5:  # usets
                 usets = []
                 if line.find("NA") == -1:
@@ -119,7 +111,6 @@ def extend_multi_concepts(df, effective_keys):
         dextend_infos = dict()
         for key in extend_keys:
             dextend_infos[key] = row[key].split(",")
-        # print(dextend_infos)
         dextend_res = dict()
         for i in range(len(dextend_infos["questions"])):
             dextend_res.setdefault("is_repeat", [])
@@ -592,7 +583,7 @@ def main(dname, fname, dataset_name, configf, min_seq_len=3, maxlen=200, kfold=5
 
     """
     stares = []
-
+    print("Start reading data")
     total_df, effective_keys = read_data(fname)
     # cal max_concepts
     if 'concepts' in effective_keys:
@@ -615,7 +606,7 @@ def main(dname, fname, dataset_name, configf, min_seq_len=3, maxlen=200, kfold=5
     print(
         f"after extend multi, total interactions: {extends}, qs: {qs}, cs: {cs}, seqnum: {seqnum}")
 
-    save_id2idx(dkeyid2idx, os.path.join(dname, "keyid2idx.json"))
+    save_id2idx(dkeyid2idx, os.path.join(dname, "keyid2idx_qn.json"))
     effective_keys.add("fold")
     config = []
     for key in ALL_KEYS:
@@ -625,34 +616,34 @@ def main(dname, fname, dataset_name, configf, min_seq_len=3, maxlen=200, kfold=5
     train_df, test_df = train_test_split(total_df, 0.2)
     splitdf = KFold_split(train_df, kfold)
     # TODO
-    splitdf[config].to_csv(os.path.join(dname, "train_valid.csv"), index=None)
-    ins, ss, qs, cs, seqnum = calStatistics(
-        splitdf, stares, "original train+valid")
-    print(
-        f"train+valid original interactions num: {ins}, select num: {ss}, qs: {qs}, cs: {cs}, seqnum: {seqnum}")
-    split_seqs = generate_sequences(
-        splitdf, effective_keys, min_seq_len, maxlen)
-    ins, ss, qs, cs, seqnum = calStatistics(
-        split_seqs, stares, "train+valid sequences")
-    print(
-        f"train+valid sequences interactions num: {ins}, select num: {ss}, qs: {qs}, cs: {cs}, seqnum: {seqnum}")
-    split_seqs.to_csv(os.path.join(
-        dname, "train_valid_sequences.csv"), index=None)
+    # splitdf[config].to_csv(os.path.join(dname, "train_valid.csv"), index=None)
+    # ins, ss, qs, cs, seqnum = calStatistics(
+    #     splitdf, stares, "original train+valid")
+    # print(
+    #     f"train+valid original interactions num: {ins}, select num: {ss}, qs: {qs}, cs: {cs}, seqnum: {seqnum}")
+    # split_seqs = generate_sequences(
+    #     splitdf, effective_keys, min_seq_len, maxlen)
+    # ins, ss, qs, cs, seqnum = calStatistics(
+    #     split_seqs, stares, "train+valid sequences")
+    # print(
+    #     f"train+valid sequences interactions num: {ins}, select num: {ss}, qs: {qs}, cs: {cs}, seqnum: {seqnum}")
+    # split_seqs.to_csv(os.path.join(
+    #     dname, "train_valid_sequences.csv"), index=None)
     # print(f"split seqs dtypes: {split_seqs.dtypes}")
 
     # add default fold -1 to test!
     test_df["fold"] = [-1] * test_df.shape[0]
     test_df['cidxs'] = get_inter_qidx(test_df)  # add index
-    test_seqs = generate_sequences(test_df, list(
-        effective_keys) + ['cidxs'], min_seq_len, maxlen)
-    ins, ss, qs, cs, seqnum = calStatistics(test_df, stares, "test original")
-    print(
-        f"original test interactions num: {ins}, select num: {ss}, qs: {qs}, cs: {cs}, seqnum: {seqnum}")
-    ins, ss, qs, cs, seqnum = calStatistics(
-        test_seqs, stares, "test sequences")
-    print(
-        f"test sequences interactions num: {ins}, select num: {ss}, qs: {qs}, cs: {cs}, seqnum: {seqnum}")
-    print("="*20)
+    # test_seqs = generate_sequences(test_df, list(
+    #     effective_keys) + ['cidxs'], min_seq_len, maxlen)
+    # ins, ss, qs, cs, seqnum = calStatistics(test_df, stares, "test original")
+    # print(
+    #     f"original test interactions num: {ins}, select num: {ss}, qs: {qs}, cs: {cs}, seqnum: {seqnum}")
+    # ins, ss, qs, cs, seqnum = calStatistics(
+    #     test_seqs, stares, "test sequences")
+    # print(
+    #     f"test sequences interactions num: {ins}, select num: {ss}, qs: {qs}, cs: {cs}, seqnum: {seqnum}")
+    # print("="*20)
 
     # test_window_seqs = generate_window_sequences(
     #     test_df, list(effective_keys) + ['cidxs'], maxlen)
@@ -660,8 +651,8 @@ def main(dname, fname, dataset_name, configf, min_seq_len=3, maxlen=200, kfold=5
 
     test_df = test_df[config+['cidxs']]
 
-    test_df.to_csv(os.path.join(dname, "test.csv"), index=None)
-    test_seqs.to_csv(os.path.join(dname, "test_sequences.csv"), index=None)
+    # test_df.to_csv(os.path.join(dname, "test.csv"), index=None)
+    # test_seqs.to_csv(os.path.join(dname, "test_sequences.csv"), index=None)
     # test_window_seqs.to_csv(os.path.join(
     #     dname, "test_window_sequences.csv"), index=None)
 
@@ -674,12 +665,12 @@ def main(dname, fname, dataset_name, configf, min_seq_len=3, maxlen=200, kfold=5
     # print(
     #     f"test window interactions num: {ins}, select num: {ss}, qs: {qs}, cs: {cs}, seqnum: {seqnum}")
 
-    # if True:
-    #     flag, test_question_seqs = generate_question_sequences(
-    #         test_df, effective_keys, False, min_seq_len, maxlen)
+    if True:
+        flag, test_question_seqs = generate_question_sequences(
+            test_df, effective_keys, False, min_seq_len, maxlen)
 
-    #     test_question_seqs.to_csv(os.path.join(
-    #         dname, "test_question_sequences.csv"), index=None)
+        test_question_seqs.to_csv(os.path.join(
+            dname, "test_question_sequences.csv"), index=None)
 
     #     flag, test_question_window_seqs = generate_question_sequences(
     #         test_df, effective_keys, True, min_seq_len, maxlen)
@@ -696,7 +687,7 @@ def main(dname, fname, dataset_name, configf, min_seq_len=3, maxlen=200, kfold=5
     #     print(
     #         f"test question window interactions num: {ins}, select num: {ss}, qs: {qs}, cs: {cs}, seqnum: {seqnum}")
 
-    flag = False
+    flag = True
     write_config(dataset_name=dataset_name, dkeyid2idx=dkeyid2idx, effective_keys=effective_keys,
                  configf=configf, dpath=dname, k=kfold, min_seq_len=min_seq_len, maxlen=maxlen, flag=flag)
 

@@ -102,7 +102,7 @@ class DIMKTDataset(Dataset):
             return dcur, dqtest
 
     def __load_data__(self,sequence_path,sds_path,qds_path,folds,pad_val=-1):
-        dori = {"qseqs":[],"cseqs":[],"rseqs":[],"tseqs":[],"utseqs":[],"smasks": [],"sdseqs":[],"qdseqs":[]}
+        dori = {"qseqs":[],"cseqs":[],"rseqs":[],"tseqs":[],"utseqs":[],"smasks": [],"sdseqs":[],"qdseqs":[], "interactionid": []}
         df = pd.read_csv(sequence_path)
         df = df[df["fold"].isin(folds)]
         sds = {}
@@ -152,6 +152,8 @@ class DIMKTDataset(Dataset):
                 dori["tseqs"].append([int(_) for _ in row["timestamps"].split(",")])
             if "usetimes" in row:
                 dori["utseqs"].append([int(_) for _ in row["usetimes"].split(",")])
+            if "interactionid" in row:
+                dori["interactionid"].append([int(_) for _ in row["interactionid"].split(",")])
 
             dori["rseqs"].append([int(_) for _ in row["responses"].split(",")])
             dori["smasks"].append([int(_) for _ in row["selectmasks"].split(",")])

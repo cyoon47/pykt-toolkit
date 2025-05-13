@@ -1,0 +1,6 @@
+CUDA_VISIBLE_DEVICES=1 python wandb_predict.py --save_dir=/root/nas/merged_kcs_75_32/saved_model/merge_kcs_75_32_0_0.001_3407_32_200_0_0_/root/nas/merged_kcs_75_32/saved_model/_qikt_iekt_0.4_300_2 >> ~/nas/KT/qikt_results.txt
+CUDA_VISIBLE_DEVICES=1 python wandb_predict.py --save_dir=/root/nas/merged_kcs_75_16/saved_model/merge_kcs_75_16_0_0.001_3407_32_200_0_0_/root/nas/merged_kcs_75_16/saved_model/_qikt_iekt_0.4_300_2 >> ~/nas/KT/qikt_results.txt
+CUDA_VISIBLE_DEVICES=1 python wandb_predict.py --save_dir=/root/nas/merged_kcs_75_8/saved_model/merge_kcs_75_8_0_0.001_3407_32_200_0_0_/root/nas/merged_kcs_75_8/saved_model/_qikt_iekt_0.4_300_2 >> ~/nas/KT/qikt_results.txt
+CUDA_VISIBLE_DEVICES=1 python wandb_predict.py --save_dir=/root/nas/merged_kcs_75_4/saved_model/merge_kcs_75_4_0_0.001_3407_32_200_0_0_/root/nas/merged_kcs_75_4/saved_model/_qikt_iekt_0.4_300_2 >> ~/nas/KT/qikt_results.txt
+CUDA_VISIBLE_DEVICES=1 python wandb_predict.py --save_dir=/root/nas/merged_kcs_75_2/saved_model/merge_kcs_75_2_0_0.001_3407_32_200_0_0_/root/nas/merged_kcs_75_2/saved_model/_qikt_iekt_0.4_300_2 >> ~/nas/KT/qikt_results.txt
+CUDA_VISIBLE_DEVICES=1 python wandb_predict.py --save_dir=/root/nas/merged_kcs_75/saved_model/merge_kcs_75_0_0.001_3407_32_200_0_0_/root/nas/merged_kcs_75/saved_model/_qikt_iekt_0.4_300_2 >> ~/nas/KT/qikt_results.txt
