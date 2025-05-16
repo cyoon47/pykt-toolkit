@@ -7,6 +7,7 @@ from pykt.config import que_type_models
 from ..datasets.lpkt_utils import generate_time2idx
 import pandas as pd
 import csv
+from tqdm import tqdm
 
 device = "cpu" if not torch.cuda.is_available() else "cuda"
 
@@ -44,16 +45,17 @@ def save_cur_predict_result(dres, q, r, d, t, m, sm, p):
         results.append(str([qs, rs, ds, ts, ps, prelabels, auc, acc]))
     return "\n".join(results)
 
-def evaluate(model, test_loader, model_name, rel=None, save_path=""):
+def evaluate(model, test_loader, model_name, rel=None, save_path="", experiment=0):
     if save_path != "":
         fout = open(save_path, "w", encoding="utf8")
+    has_interactionid = False
     with torch.no_grad():
         y_trues = []
         y_scores = []
         interactionids = []
         dres = dict()
         test_mini_index = 0
-        for data in test_loader:
+        for data in tqdm(test_loader, desc="Test batches", total=len(test_loader)):
             # if model_name in ["dkt_forget", "lpkt"]:
             #     q, c, r, qshft, cshft, rshft, m, sm, d, dshft = data
             if model_name in ["dkt_forget", "bakt_time"]:
@@ -61,14 +63,21 @@ def evaluate(model, test_loader, model_name, rel=None, save_path=""):
             else:
                 dcur = data
             if model_name in ["dimkt"]:
-                q, c, r, sd,qd, interactionid = dcur["qseqs"], dcur["cseqs"], dcur["rseqs"], dcur["sdseqs"],dcur["qdseqs"], dcur=["interactionid"]
-                qshft, cshft, rshft, sdshft,qdshft, interactionidshft = dcur["shft_qseqs"], dcur["shft_cseqs"], dcur["shft_rseqs"], dcur["shft_sdseqs"],dcur["shft_qdseqs"],dcur["shft_interactionid"]
+                q, c, r, sd,qd = dcur["qseqs"], dcur["cseqs"], dcur["rseqs"], dcur["sdseqs"],dcur["qdseqs"]
+                qshft, cshft, rshft, sdshft,qdshft = dcur["shft_qseqs"], dcur["shft_cseqs"], dcur["shft_rseqs"], dcur["shft_sdseqs"],dcur["shft_qdseqs"]
                 sd, qd, sdshft, qdshft = sd.to(device), qd.to(device), sdshft.to(device), qdshft.to(device)
             else:
-                q, c, r, interactionid = dcur["qseqs"], dcur["cseqs"], dcur["rseqs"], dcur["interactionid"]
-                qshft, cshft, rshft, interactionidshft= dcur["shft_qseqs"], dcur["shft_cseqs"], dcur["shft_rseqs"], dcur["shft_interactionid"]
+                q, c, r = dcur["qseqs"], dcur["cseqs"], dcur["rseqs"]
+                qshft, cshft, rshft = dcur["shft_qseqs"], dcur["shft_cseqs"], dcur["shft_rseqs"]
             m, sm = dcur["masks"], dcur["smasks"]
-            q, c, r, interactionid, qshft, cshft, rshft, interactionidshft, m, sm = q.to(device), c.to(device), r.to(device), interactionid.to(device), qshft.to(device), cshft.to(device), rshft.to(device), interactionidshft.to(device), m.to(device), sm.to(device)
+
+            if 'interactionid' in dcur:
+                has_interactionid = True
+                interactionid = dcur["interactionid"]
+                interactionidshft = dcur["shft_interactionid"]
+                interactionid, interactionidshft = interactionid.to(device), interactionidshft.to(device)
+            
+            q, c, r, qshft, cshft, rshft, m, sm = q.to(device), c.to(device), r.to(device), qshft.to(device), cshft.to(device), rshft.to(device), m.to(device), sm.to(device)
             if model.model_name in que_type_models and model_name not in ["lpkt", "rkt", "promptkt", "unikt"]:
                 model.model.eval()
             else:
@@ -98,6 +107,8 @@ def evaluate(model, test_loader, model_name, rel=None, save_path=""):
                 y = y[:,1:]
             elif model_name in ["simplekt","stablekt", "sparsekt", "cskt", "ukt", "hcgkt"]:
                 y = model(dcur)
+                if model_name == 'sparsekt':
+                    y = y[0]
                 y = y[:,1:]
             elif model_name in ["rekt"]:
                 y = model(dcur)
@@ -158,68 +169,113 @@ def evaluate(model, test_loader, model_name, rel=None, save_path=""):
             y = torch.masked_select(y, sm).detach().cpu()
             # print(f"pred_results:{y}")  
             t = torch.masked_select(rshft, sm).detach().cpu()
-            interactionidshft_cpu = torch.masked_select(interactionidshft, sm).detach().cpu()
 
             y_trues.append(t.numpy())
             y_scores.append(y.numpy())
-            interactionids.append(np.array(interactionidshft_cpu))
+            if has_interactionid:
+                interactionidshft_cpu = torch.masked_select(interactionidshft, sm).detach().cpu()
+                interactionids.append(np.array(interactionidshft_cpu))
             test_mini_index+=1
         ts = np.concatenate(y_trues, axis=0)
         ps = np.concatenate(y_scores, axis=0)
-        iids = np.concatenate(interactionids, axis=0)
+
 
         aucs, accs = dict(), dict()
 
         print(f"ts.shape: {ts.shape}, ps.shape: {ps.shape}")
         auc = metrics.roc_auc_score(y_true=ts, y_score=ps)
-
         prelabels = [1 if p >= 0.5 else 0 for p in ps]
         acc = metrics.accuracy_score(ts, prelabels)
 
+        if experiment:
+            ps_shuffled = np.random.permutation(ps)
+            auc_shuffled = metrics.roc_auc_score(y_true=ts, y_score=ps_shuffled)
+            prelabels_shuffled = [1 if p >= 0.5 else 0 for p in ps_shuffled]
+            acc_shuffled = metrics.accuracy_score(ts, prelabels_shuffled)
+            aucs['kc_shuffled'], accs['kc_shuffled'] = auc_shuffled, acc_shuffled
+
         aucs['kc'], accs['kc'] = auc, acc
-        dfs = dict()
+        if has_interactionid:
+            iids = np.concatenate(interactionids, axis=0)
+            dfs = dict()
 
-        dfs['true'] = ts
-        dfs['pred'] = ps
-        dfs['iids'] = iids
+            dfs['true'] = ts
+            dfs['pred'] = ps
+            dfs['iids'] = iids
+            if experiment:
+                dfs['pred_shuffled'] = ps_shuffled
 
-        df = pd.DataFrame(dfs)
+            df = pd.DataFrame(dfs)
 
-        df = df.groupby("iids", as_index=True, sort=False)
+            df = df.groupby("iids", as_index=True, sort=False)
 
-        grouped_result = dict() #contains trues, late_vote, late_mean, late_strict
-        grouped_result['trues'] = []
-        grouped_result['late_vote'] = []
-        grouped_result['late_mean'] = []
-        grouped_result['late_strict'] = []
+            grouped_result = dict() #contains trues, late_vote, late_mean, late_strict
+            grouped_result['trues'] = []
+            grouped_result['late_vote'] = []
+            grouped_result['late_mean'] = []
+            grouped_result['late_strict'] = []
 
-        for ui in df:
-            iid = ui[0]
-            dcur = ui[1]
+            if experiment:
+                grouped_result['trues_shuffled'] = []
+                grouped_result['late_vote_shuffled'] = []
+                grouped_result['late_mean_shuffled'] = []
+                grouped_result['late_strict_shuffled'] = []
 
-            preds = dcur['pred'] #np array
-            trues = dcur['true'] #np array
+            group_count = 0
+            for ui in df:
+                group_count += 1
+                iid = ui[0]
+                dcur = ui[1]
+
+                preds = dcur['pred'] #np array
+                trues = dcur['true'] #np array
+                
+                # print(f'iid: {iid}')
+                # print(f'dcur keys: {dcur.keys()}')
+                # print(f'true len: {len(trues)}, pred len: {len(preds)}')
+                # print(trues)
+                assert np.all(trues == trues.iloc[0]), "All true values are not equal"
+                late_vote = 1 if sum([1 if p >= 0.5 else 0 for p in preds]) > len(preds) / 2 else 0
+                late_mean = np.mean(preds)
+                late_strict = 1 if all([p >= 0.5 for p in preds]) else 0
+                grouped_result['late_vote'].append(late_vote)
+                grouped_result['late_mean'].append(late_mean)
+                grouped_result['late_strict'].append(late_strict)
+                grouped_result['trues'].append(trues.iloc[0])
+
+                # print(f'iid: {iid}')
+                # print(f'preds: {preds}')
+                # print(f'trues: {trues}')
+                # print(f'grouped_result: {grouped_result}')
+
+                if experiment:
+                    preds_shuffled = dcur['pred_shuffled']
+                    late_vote_shuffled = 1 if sum([1 if p >= 0.5 else 0 for p in preds_shuffled]) > len(preds_shuffled) / 2 else 0
+                    late_mean_shuffled = np.mean(preds_shuffled)
+                    late_strict_shuffled = 1 if all([p >= 0.5 for p in preds_shuffled]) else 0
+                    grouped_result['late_vote_shuffled'].append(late_vote_shuffled)
+                    grouped_result['late_mean_shuffled'].append(late_mean_shuffled)
+                    grouped_result['late_strict_shuffled'].append(late_strict_shuffled)
+
+
+            print(f'group_count: {group_count}')
+            keys = ['late_vote', 'late_mean', 'late_strict']
+            if experiment:
+                keys.extend(['late_vote_shuffled', 'late_mean_shuffled', 'late_strict_shuffled'])            
             
-            # print(f'iid: {iid}')
-            # print(f'dcur keys: {dcur.keys()}')
-            # print(f'true len: {len(trues)}, pred len: {len(preds)}')
-            # print(trues)
-            assert np.all(trues == trues.iloc[0]), "All true values are not equal"
-            late_vote = 1 if sum([1 if p >= 0.5 else 0 for p in preds]) > len(preds) / 2 else 0
-            late_mean = np.mean(preds)
-            late_strict = 1 if all([p >= 0.5 for p in preds]) else 0
-            grouped_result['late_vote'].append(late_vote)
-            grouped_result['late_mean'].append(late_mean)
-            grouped_result['late_strict'].append(late_strict)
-            grouped_result['trues'].append(trues.iloc[0])
+            for key in keys:
+                auc = metrics.roc_auc_score(y_true=grouped_result['trues'], y_score=grouped_result[key])
+                prelabels = [1 if p >= 0.5 else 0 for p in grouped_result[key]]
+                acc = metrics.accuracy_score(grouped_result['trues'], prelabels)
 
-        keys = ['late_vote', 'late_mean', 'late_strict']
-        for key in keys:
-            auc = metrics.roc_auc_score(y_true=grouped_result['trues'], y_score=grouped_result[key])
-            prelabels = [1 if p >= 0.5 else 0 for p in grouped_result[key]]
-            acc = metrics.accuracy_score(grouped_result['trues'], prelabels)
+                aucs[key], accs[key] = auc, acc
 
-            aucs[key], accs[key] = auc, acc
+                if experiment and key in ['late_vote', 'late_mean', 'late_strict']:
+                    prelabels = [1 if p >= 0.5 else 0 for p in grouped_result[key]]
+                    print(f"{key} confusion matrix")
+                    print(metrics.confusion_matrix(grouped_result['trues'], prelabels, labels=[0,1]))
+                    print(f"{key} classification report")
+                    print(metrics.classification_report(grouped_result['trues'], prelabels, labels=[0,1]))
     # if save_path != "":
     #     pd.to_pickle(dres, save_path+".pkl")
     return aucs, accs

@@ -10,6 +10,7 @@ from .atkt import _l2_normalize_adv
 from ..utils.utils import debug_print
 from pykt.config import que_type_models
 import pandas as pd
+from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -280,9 +281,9 @@ def train_model(model, train_loader, valid_loader, num_epochs, opt, ckpt_path, t
 
     if model.model_name=='lpkt':
         scheduler = torch.optim.lr_scheduler.StepLR(opt, 10, gamma=0.5)
-    for i in range(1, num_epochs + 1):
+    for i in tqdm(range(1, num_epochs + 1), desc="Epochs", total=num_epochs):
         loss_mean = []
-        for data in train_loader:
+        for data in tqdm(train_loader, desc="Train loader batches", total=len(train_loader), leave=False):
             train_step+=1
             if model.model_name in que_type_models and model.model_name not in ["lpkt", "rkt"]:
                 model.model.train()
@@ -317,6 +318,7 @@ def train_model(model, train_loader, valid_loader, num_epochs, opt, ckpt_path, t
         ### atkt 有diff， 以下代码导致的
         ### auc, acc = round(auc, 4), round(acc, 4)
 
+        auc, acc = auc['kc'], acc['kc']
         if auc > max_auc+1e-3:
             if save_model:
                 torch.save(model.state_dict(), os.path.join(ckpt_path, model.emb_type+"_model.ckpt"))
